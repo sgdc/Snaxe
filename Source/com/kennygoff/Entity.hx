@@ -16,11 +16,7 @@ class Entity extends Sprite
   {
     this.removeEventListener(Event.ADDED_TO_STAGE, init);
   }
-
-  public function render()
-  {
-  }
-
+  
   private function _initDimensions(w:Int, h:Int)
   {
     this.graphics.beginFill(0xFFFFFF, 0);

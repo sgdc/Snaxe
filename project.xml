@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   
-  <window width="480" height="480" />
+  <window width="480" height="480" fps="15"/>
   
   <meta title="Snaxe" package="com.kennygoff.snaxe" version="1.0.0" company="kennygoff" />
   <app main="com.kennygoff.Snaxe" path="Export" file="Snaxe" />

@@ -7,36 +7,32 @@ import flash.ui.Keyboard;
 import openfl.display.FPS;
 import haxe.Timer;
 
-enum Direction
-{
-  Up; Right; Down; Left;
-}
+enum Direction { Up; Right; Down; Left; }
 
-class Snaxe extends Sprite
+class Snaxe extends Game
 {
-  var snake : Array<Cell>;
-  var direction : Direction;
-  var snakeLength : Int;
-  var cacheTime : Float;
-  var food : Cell;
+  private var snake : Array<Cell>;
+  private var direction : Direction;
+  private var snakeLength : Int;
+  private var food : Cell;
 
   public function new()
   {
     super();
-
-    this.addEventListener(Event.ADDED_TO_STAGE, init);
   }
 
-  public function init(e:Event)
+  public override function init(e:Event)
   {
-    this.removeEventListener(Event.ADDED_TO_STAGE, init);
+    super.init(e);
 
-    cacheTime = Timer.stamp();
-    addChild(new FPS(0, 0));
+    this.graphics.beginFill(0x66b5ff, 1);
+    this.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
+    this.graphics.endFill();
+
     initSnake();
     initFood();
 
-    this.addEventListener(Event.ENTER_FRAME, update);
+    addChild(new FPS(0, 0));
     stage.addEventListener(KeyboardEvent.KEY_DOWN, stage_onKeyDown);
   }
 
@@ -48,11 +44,8 @@ class Snaxe extends Sprite
       addChild(food);
     }
 
-    var fx = Math.floor(Math.random() * 48);
-    var fy = Math.floor(Math.random() * 48);
-
-    food.x = fx*10;
-    food.y = fy*10;
+    food.x = Math.floor(Math.random() * 48) * 10;
+    food.y = Math.floor(Math.random() * 48) * 10;
   }
 
   public function initSnake()
@@ -73,59 +66,39 @@ class Snaxe extends Sprite
     addChild(cell);
   }
 
-  public function clear()
+  public override function update(e:Event)
   {
-    this.graphics.beginFill(0x66b5ff, 1);
-    this.graphics.drawRect(0, 0, this.stage.width, this.stage.height);
-    this.graphics.endFill();
-  }
+    var head = snake.pop();
+    var tail_x = Math.floor(head.x);
+    var tail_y = Math.floor(head.y);
 
-  public function update(e:Event)
-  {
-    var currentTime = Timer.stamp();
-    if(currentTime - cacheTime > 0.05)
+    if(snake.length > 0)
     {
-      cacheTime = currentTime;
-
-      var tail = snake.pop();
-      var tail_x = Math.floor(tail.x);
-      var tail_y = Math.floor(tail.y);
-      if(snake.length > 0)
-      {
-        tail.x = snake[0].x;
-        tail.y = snake[0].y;
-      }
-      switch(this.direction)
-      {
-        case Up: tail.y -= 10;
-        case Right: tail.x += 10;
-        case Down: tail.y += 10;
-        case Left: tail.x -= 10;
-      }
-
-      snake.unshift(tail);
-
-      if(snake.length < snakeLength)
-      {
-        var cell = new Cell(tail_x, tail_y);
-        snake.push(cell);
-        addChild(cell);
-      }
-
-      if(snake.length > 0 && food != null && Math.floor(snake[0].x/10) == Math.floor(food.x/10) && Math.floor(snake[0].y/10) == Math.floor(food.y/10))
-      {
-        snakeLength++;
-        initFood();
-      }
+      head.x = snake[0].x;
+      head.y = snake[0].y;
+    }
+    switch(this.direction)
+    {
+      case Up: head.y -= 10;
+      case Right: head.x += 10;
+      case Down: head.y += 10;
+      case Left: head.x -= 10;
     }
 
-    // render
-    clear();
-    for(cell in snake)
+    snake.unshift(head);
+
+    if(Math.floor(snake[0].x/10) == Math.floor(food.x/10) && Math.floor(snake[0].y/10) == Math.floor(food.y/10))
     {
-      cell.render();
+      snakeLength++;
+      initFood();
     }
-    food.render();
+
+    if(snake.length < snakeLength)
+    {
+      var tail = new Cell(tail_x, tail_y);
+      snake.push(tail);
+      addChild(tail);
+    }
   }
 
   private function stage_onKeyDown(e:KeyboardEvent)
